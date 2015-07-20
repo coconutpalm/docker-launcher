@@ -2,6 +2,7 @@ include README.md
 
 recursive-include launcher/util/schema *
 recursive-include launcher/util/templates *
+recursive-include launcher/util/stack_confs *
 recursive-include launcher/ansible/templates *
 
 include tests/test-config.yml

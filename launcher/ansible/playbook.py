@@ -204,7 +204,7 @@ def add_logging_services(services, is_remote):
     :is_remote: bool representing deploy target
     :returns: None
     """
-    relpath = '../util/stack-confs/logging-services.yml'
+    relpath = '../util/stack_confs/logging-services.yml'
     script_dir = os.path.dirname(__file__)
     file_path = os.path.join(script_dir, relpath)
     with open(file_path, 'r') as logging_stack:

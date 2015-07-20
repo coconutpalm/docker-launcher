@@ -1,0 +1,11 @@
+test:
+  override:
+    - pylint --output-format=parseable bin launcher | tee pylint.log
+    - py.test --cov-report xml --cov launcher tests --junitxml=result.xml
+  post:
+    - cp result.xml $CIRCLE_TEST_REPORTS
+    - cp coverage.xml $CIRCLE_TEST_REPORTS
+    - cp pylint.log $CIRCLE_TEST_REPORTS
+notify:
+  webhooks:
+    - url: https://webhooks.gitter.im/e/7f9f243d5b3b249141ed
