@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/advancedtelematic/docker-launcher.svg?style=svg)](https://circleci.com/gh/advancedtelematic/docker-launcher)
+
 # Docker Launcher
 
 Launches Docker container stacks on EC2 or localhost.
