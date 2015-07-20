@@ -1,0 +1,7 @@
+pytest
+pyyaml
+jinja2
+pytest-cov
+boto
+pylint
+pyrx-ats

@@ -1,0 +1,36 @@
+- name: Deploy {{ service.get('name') }} migrations
+  hosts: {{ host }}
+  tags: {{ service.get('name') }}
+  tasks:
+    - name: Pull the migrations image
+      raw: docker pull cassandra
+
+    {% for file in files -%}
+    - name: Upload {{ file }}
+      sudo: True
+      template:
+        src: {{ file }}
+        dest: /home/core/{{ file }}
+    {% endfor %}
+
+
+    - name: Launch migrations
+      docker:
+        image: cassandra
+        name: migrations
+        state: reloaded
+        command: "/bin/bash -c 'cat /opt/{{ files | join(' /opt/') }} | cqlsh $CASSANDRA_PORT_9042_TCP_ADDR'"
+        volumes:
+          {% for file in files -%}
+          - /home/core/{{ file }}:/opt/{{ file }}
+          {% endfor %}
+        {% if service.get('env') != None -%}
+        env: {{ service.get('env') }}
+        {% endif -%}
+
+        links:
+          - cassandra:cassandra
+
+    - name: Wait for migrations
+      wait_for: host=localhost port=9042 delay=30 timeout=60 state=started
+

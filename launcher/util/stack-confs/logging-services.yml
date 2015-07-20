@@ -1,0 +1,36 @@
+---
+services:
+
+  - name: elasticsearch
+    repo: nathanleclaire/elasticsearch:43d2b4f914a192d0de221cb744dab665b07f1268
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  - name: logstash
+    repo: advancedtelematic/logstash
+    env:
+      LOGSPOUT: ignore
+    ports:
+      - "5000:5000"
+      - "5000:5000/udp"
+    expose:
+      - 5000/udp
+    command: -f /etc/logstash.sample.conf
+    links:
+      - elasticsearch
+
+  - name: logspout
+    repo: advancedtelematic/logspout
+    env:
+      DEBUG: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: /bin/sh -c '/bin/logspout syslog://$LOGSTASH_PORT_5000_TCP_ADDR:5000'
+    links:
+      - logstash
+
+  - name: kibana
+    repo: nathanleclaire/kibana:43d2b4f914a192d0de221cb744dab665b07f1268
+    ports:
+      - 5454:80

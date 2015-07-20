@@ -1,0 +1,50 @@
+---
+security_groups:
+  - name: redis-smoke-test
+    description: A random redis security group
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 6379
+        to_port: 6379
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+
+nodes:
+  - name: db-server
+    group: redis-smoke-test
+    services:
+      - redis
+    size: t2.micro
+    count: 1
+
+services:
+  - name: redis
+    repo: redis
+    ports:
+      - 6379
+
+tests:
+  - name: targeted
+    target: redis
+    shell: 
+      name: redis-cli
+      args: "-h %TARGET -p 6379 PING"
+    docker:
+      name: redis-smoke-test
+      repo: redis
+      command: "redis-cli -h %TARGET -p 6379 PING"
+
+  - name: env
+    target: redis
+    docker:
+      name: redis-env-test
+      repo: redis
+      command: bash -c 'redis-cli -h $HOST -p 6379 PING'
+      env:
+        HOST: "%TARGET"

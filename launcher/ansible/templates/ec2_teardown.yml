@@ -1,0 +1,29 @@
+- name: Teardown EC2 instances
+  hosts: local
+  tags: always
+  tasks:
+    {% for node in nodes %}
+    - name: Teardown {{ node.get('name') }} EC2 instances
+      local_action:
+        module: ec2
+        key_name: "{{ conf.get('ec2')['key'] }}"
+        group: "{{ node.get('group') }}"
+        instance_type: "{{ node.get('size') }}"
+        image: "{{ conf.get('ec2')['image'] }}"
+        region: "{{ conf.get('ec2')['region'] }}"
+        wait: yes
+        exact_count: 0
+        count_tag:
+          Name: "{{ node.get('name') }}"
+        instance_tags:
+          Name: "{{ node.get('name') }}"
+          type: coreos
+        {% if node.get('volumes') != None %}
+        volumes:
+          {% for volume in node.get('volumes') -%}
+          - device_name: {{ volume['dev'] }}
+            device_type: gp2
+            volume_size: {{ volume['size'] }}
+          {% endfor -%}
+        {% endif %}
+    {% endfor %}

@@ -1,0 +1,43 @@
+- name: Run {{ name }} test
+  hosts: local
+  tags: test
+  tasks:
+    {% if docker != None %}
+    - name: Start {{ docker.get('name') }}
+      docker:
+        image: {{ docker.get('repo') }}
+        name: {{ docker.get('name') }}
+        state: restarted
+        {% if docker.get('command') != None -%}
+        command: "{{ docker.get('command') | replace('%TARGET', target) }}"
+        {% endif -%}
+        {% if docker.get('env') != None -%}
+        env:
+          {% for var in docker.get('env') -%}
+          {{ var }}: "{{ docker.get('env')[var] | replace('%TARGET', target) }}"
+          {% endfor %}
+        {% endif %}
+
+    - name: Wait for {{ docker.get('name') }}
+      shell: docker wait {{ docker.get('name') }}
+      register: docker_return
+
+    - name: Get output of {{ docker.get('name') }}
+      shell: docker logs {{ docker.get('name') }}
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test {{ name }} failed with {{ '{{' }} docker_return.stdout {{ '}}' }}"
+      when: docker_return.stdout != "0"
+    {% endif %}
+
+    {% if shell != None %}
+    - name: Run {{ name }} shell script
+      shell: {{ shell.get('name') }} {{ shell.get('args', '') | replace('%TARGET', target)}}
+      register: shell_return
+
+    - debug: var=shell_return
+      {%- endif %}
+

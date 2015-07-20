@@ -1,0 +1,137 @@
+---
+type: //rec
+required:
+  services:
+    type: //arr
+    length: { min: 1 }
+    contents:
+      type: //rec
+      required:
+        name: //str
+        repo: //str
+      optional:
+        version:
+          type: //any
+          of: ["//num", "//str"]
+        expose:
+          type: //arr
+          contents: { type: //str }
+        command: //str
+        wait:
+          type: //rec
+          required:
+            port: //int
+            delay: //int
+        env:
+          type: //map
+          values: //str
+        advertised_port: //int
+        ports:
+          type: //arr
+          contents:
+            type: //any
+            of: ["//int", "//str"]
+        migrations:
+          type: //rec
+          optional:
+            cql:
+              type: //arr
+              contents: { type: //str }
+        links:
+          type: //arr
+          contents: { type: //str }
+        volumes:
+          type: //arr
+          contents: { type: //str }
+        files:
+          type: //arr
+          contents:
+            type: //rec
+            required:
+              src: //str
+              dest: //str
+        schedule:
+          type: //arr
+          contents:
+            type: //rec
+            required:
+              onboot: //str
+              schedule: //str
+              description: //str
+optional:
+  version: //num
+  logging: //bool
+  nodes:
+    type: //arr
+    contents:
+      type: //rec
+      required:
+        name: //str
+        group: //str
+        services:
+          type: //arr
+          contents: { type: //str }
+        size: //str
+        count: //int
+      optional:
+        logging_master: //bool
+        volumes:
+          type: //arr
+          contents:
+            type: //rec
+            required:
+              dev: //str
+              size: //int
+              fs: //str
+              mountpoint: //str
+  security_groups:
+    type: //arr
+    contents:
+      type: //rec
+      required:
+        name: //str
+        description: //str
+      optional:
+        rules:
+          type: //arr
+          contents:
+            type: //rec
+            required:
+              proto: //str
+              from_port: //int
+              to_port: //int
+            optional:
+              cidr_ip: //str
+              group_name: //str
+        rules_egress:
+          type: //arr
+          contents:
+            type: //rec
+            required:
+              proto: //str
+              cidr_ip: //str
+  tests:
+    type: //arr
+    contents:
+      type: //rec
+      required:
+        name: //str
+      optional:
+        target: //str
+        docker:
+          type: //rec
+          required:
+            name: //str
+            repo: //str
+          optional:
+            version: //any
+            command: //str
+            env:
+              type: //map
+              values: //str
+        shell:
+          type: //rec
+          required:
+            name: //str
+          optional:
+            args: //str

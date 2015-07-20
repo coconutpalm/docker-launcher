@@ -1,0 +1,30 @@
+---
+version: 0.1
+services:
+  - name: cassandra
+    repo: poklet/cassandra
+    wait:
+      port: 9042
+      delay: 30
+    ports:
+      - 9042
+      - 9160
+      - 7000
+    volumes:
+      - /var/lib/cassandra
+
+  - name: redis
+    repo: redis
+    command: /bin/bash -c redis-server --requirepass $REDIS_PASS
+    env:
+      REDIS_PASS: abc123
+    ports:
+      - 6379:6379
+
+  - name: auth-plus
+    repo: advancedtelematic/auth-plus
+    links:
+      - cassandra
+      - redis
+    ports:
+      - 9001:9001

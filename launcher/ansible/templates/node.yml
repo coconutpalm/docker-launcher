@@ -1,0 +1,46 @@
+    - name: Create {{ node.get('name') }} EC2 instances
+      register: ec2
+      local_action:
+        module: ec2
+        key_name: "{{ conf.get('ec2')['key'] }}"
+        group: "{{ node.get('group') }}"
+        instance_type: "{{ node.get('size') }}"
+        image: "{{ conf.get('ec2')['image'] }}"
+        region: "{{ conf.get('ec2')['region'] }}"
+        wait: yes
+        exact_count: {{ node.get('count') }}
+        user_data: |
+          {{ node.get_aws_cloud_config(conf) | indent(10) }}
+        count_tag:
+          Name: "{{ node.get('name') }}"
+        instance_tags:
+          Name: "{{ node.get('name') }}"
+          type: coreos
+        {% if node.get('volumes') != None %}
+        volumes:
+          {% for volume in node.get('volumes') -%}
+          - device_name: {{ volume['dev'] }}
+            device_type: gp2
+            volume_size: {{ volume['size'] }}
+          {% endfor -%}
+        {% endif %}
+
+    - name: Add {{ node.get('name') }} to coreos group
+      {{ 'local_action: add_host >
+        hostname={{ item.public_dns_name }}
+        groupname=coreos
+        id={{ item.id }}
+        test_ip={{ item.public_dns_name }}' }}
+      with_items: ec2.tagged_instances
+
+    - name: Add {{ node.get('name') }} to host groups
+      {{ 'local_action: add_host >
+        hostname={{ item[0].public_dns_name }}
+        groupname={{ item[1] }}
+        id={{ item[0].id }}
+        test_ip={{ item[0].public_dns_name }}' }}
+      with_nested:
+        - ec2.tagged_instances
+        - {{ node.get('services') }}
+
+

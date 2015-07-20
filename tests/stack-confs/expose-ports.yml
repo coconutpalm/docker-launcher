@@ -1,0 +1,8 @@
+---
+services:
+  - name: one
+    repo: someone/something
+    ports:
+      - 6000
+    expose:
+      - 5000/udp

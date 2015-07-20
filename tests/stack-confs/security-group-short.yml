@@ -1,0 +1,7 @@
+security_groups:
+  - name: short-security-group
+    description: A generated security group
+
+services:
+  - name: test
+    repo: test

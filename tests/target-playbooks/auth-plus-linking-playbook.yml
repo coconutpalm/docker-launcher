@@ -1,0 +1,71 @@
+- name: Deploy cassandra
+  hosts: local
+  tags: cassandra
+  tasks:
+    - name: Pull the cassandra image
+      raw: docker pull cassandra
+
+    - name: Launch cassandra
+      docker:
+        image: cassandra
+        name: cassandra
+        state: reloaded
+        ports: ['9042:9042', '9160:9160', '7000:7000']
+        expose: ['9042', '9160', '7000']
+        volumes: ['/var/lib/cassandra']
+
+    - name: Wait for cassandra
+      wait_for: host=localhost port=9042 delay=30 timeout=60 state=started
+
+- name: Deploy redis
+  hosts: local
+  tags: redis
+  tasks:
+    - name: Pull the redis image
+      raw: docker pull redis
+
+    - name: Launch redis
+      docker:
+        image: redis
+        name: redis
+        state: reloaded
+        ports: ['6379:6379']
+        expose: ['6379']
+        command: "redis-server --requirepass abc123"
+
+- name: Deploy device_info
+  hosts: local
+  tags: device_info
+  tasks:
+    - name: Pull the device_info image
+      raw: docker pull advancedtelematic/deviceinfo-scala
+
+    - name: Launch device_info
+      docker:
+        image: advancedtelematic/deviceinfo-scala
+        name: device_info
+        state: reloaded
+        ports: ['9002:9002']
+        expose: ['9002']
+        links:
+          - 'cassandra:cassandra'
+          - 'redis:redis'
+
+- name: Deploy auth-plus
+  hosts: local
+  tags: auth-plus
+  tasks:
+    - name: Pull the auth-plus image
+      raw: docker pull advancedtelematic/auth-plus
+
+    - name: Launch auth-plus
+      docker:
+        image: advancedtelematic/auth-plus
+        name: auth-plus
+        state: reloaded
+        ports: ['9001:9001']
+        expose: ['9001']
+        links:
+          - 'device_info:device_info'
+          - 'cassandra:cassandra'
+          - 'redis:redis'

@@ -1,0 +1,18 @@
+---
+- name: Deploy one
+  hosts: local
+  tags: one
+  tasks:
+    - name: Pull the one image
+      raw: docker pull someone/something
+
+
+
+    - name: Launch one
+      docker:
+        image: someone/something
+        name: one
+        state: reloaded
+        ports: ['6000:6000']
+        expose: ['6000', '5000/udp']
+

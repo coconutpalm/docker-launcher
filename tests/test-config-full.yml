@@ -1,0 +1,11 @@
+---
+reboot_strategy: 'off'
+registry:
+  user: atsjenkins
+  email: jenkins@advancedtelematic.com
+ec2:
+  key: integration_tests
+  image: ami-07fd8270
+  region: eu-west-1
+python: python2
+verbosity: 1

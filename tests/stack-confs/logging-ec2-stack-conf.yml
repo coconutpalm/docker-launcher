@@ -1,0 +1,43 @@
+---
+logging: true
+
+nodes:
+  - name: app-server
+    group: ats-demo
+    services:
+      - someapp
+    size: t2.medium
+    count: 1
+    volumes:
+      - dev: /dev/xvdf
+        size: 30
+        fs: btrfs
+        mountpoint: /mnt
+
+  - name: haproxy-server
+    group: ats-demo
+    logging_master: true
+    services:
+      - haproxy
+    size: t2.medium
+    count: 1
+    volumes:
+      - dev: /dev/xvdf
+        size: 30
+        fs: btrfs
+        mountpoint: /mnt
+
+services:
+  - name: haproxy
+    version: latest
+    repo: haproxy
+    ports:
+      - 80
+    files:
+      - src: haproxy.cfg.j2
+        dest: /etc/haproxy.cfg
+    volumes:
+      - /etc/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+  - name: someapp
+    repo: someone/something

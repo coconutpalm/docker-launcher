@@ -1,0 +1,19 @@
+- name: Deploy cassandra
+  hosts: local
+  tags: cassandra
+  tasks:
+    - name: Pull the cassandra image
+      raw: docker pull poklet/cassandra
+
+    - name: Launch cassandra
+      docker:
+        image: poklet/cassandra
+        name: cassandra
+        state: reloaded
+        ports: ['9042:9042', '9160:9160' ,'7000:7000']
+        expose: ['9042', '9160' ,'7000']
+        volumes:
+          - /var/lib/cassandra
+
+    - name: Wait for cassandra
+      wait_for: host=localhost port=9042 delay=30 timeout=60 state=started

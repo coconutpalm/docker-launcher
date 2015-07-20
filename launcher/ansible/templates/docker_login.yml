@@ -1,0 +1,8 @@
+- name: login to docker hub
+  hosts: coreos
+  tags: bootstrap
+  tasks:
+  - name: login into Docker Hub
+    raw: docker login -u "{{ conf.get('registry')['user'] }}" -p "{{'{{ lookup(\'env\', \'DOCKER_PASSWORD\') }}'}}" -e "{{ conf.get('registry')['email'] }}"
+
+

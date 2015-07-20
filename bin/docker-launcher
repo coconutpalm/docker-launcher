@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+#
+# Copyright © 2015 ATS Advanced Telematic Systems GmbH
+#
+# This file is part of Docker Launcher.
+#
+# Docker Launcher is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Docker Launcher is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Docker Launcher. If not, see <http://www.gnu.org/licenses/>.
+#
+
+"""Entry point for running docker-launcher interactively"""
+
+import launcher.ansible.executor as executor
+import launcher.ansible.teardown as teardown
+from launcher.util.dict_wrapper import SchemaError
+from launcher.util.password import export_password
+from launcher.util.cli_args import get_args
+
+
+def main():
+    """Run docker-launcher"""
+    try:
+        args = get_args()
+        export_password(args.config)
+
+        if args.jenkins > 0:
+            exit_code = 1
+            retries = 0
+
+            while exit_code > 0 and retries < args.jenkins:
+                retries += 1
+                print '\n>> {}. try'.format(retries)
+                exit_code = executor.run(args.config, args.stack,
+                                         args.verbose, args.python)
+
+            print '\n>> Teardown'
+            exit_code += teardown.run(args.config, args.stack,
+                                      args.verbose, args.python)
+
+            exit(exit_code)
+        elif args.teardown:
+            exit(teardown.run(args.config, args.stack,
+                              args.verbose, args.python))
+        else:
+            exit(executor.run(args.config, args.stack,
+                              args.verbose, args.python))
+
+    except SchemaError, msg:
+        print msg
+        exit(4)
+    except IOError, msg:
+        print msg
+        exit(1)
+
+
+if __name__ == '__main__':
+    main()

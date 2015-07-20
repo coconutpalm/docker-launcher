@@ -1,0 +1,17 @@
+- name: "Create security group: {{ security_group.get('name') }}"
+  hosts: local
+  tasks:
+    - name: "Create {{ security_group.get('name') }}"
+      local_action:
+        module: ec2_group
+        name: "{{ security_group.get('name') }}"
+        description: "{{ security_group.get('description') }}"
+        region: "{{ conf.get('ec2')['region'] }}"
+        state: present
+        {% if security_group.get('rules') != None %}
+        rules: {{ security_group.get('rules') }}
+        {% endif %}
+        {% if security_group.get('rules_egress') != None %}
+        rules_egress: {{ security_group.get('rules_egress') }}
+        {% endif %}
+

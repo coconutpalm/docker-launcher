@@ -1,0 +1,39 @@
+---
+services:
+  - name: redis
+    repo: redis
+
+tests:
+  - name: load
+    docker:
+      name: load-test
+      repo: some/load-test
+
+  - name: integration
+    shell:
+      name: ./test.sh
+
+  - name: both
+    shell:
+      name: ./test.sh
+    docker:
+      name: load-test
+      repo: some/load-test
+
+  - name: targeted
+    target: haproxy
+    shell: 
+      name: ./test.sh
+      args: "--target %TARGET"
+    docker:
+      name: load-test
+      repo: some/load-test
+      command: "/load-test --target %TARGET"
+
+  - name: env
+    target: haproxy
+    docker:
+      name: load-test
+      repo: some/load-test
+      env:
+        TARGET: "%TARGET"

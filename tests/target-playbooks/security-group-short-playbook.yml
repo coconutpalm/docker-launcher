@@ -1,0 +1,25 @@
+---
+- name: "Create security group: short-security-group"
+  hosts: local
+  tasks:
+    - name: "Create short-security-group"
+      local_action:
+        module: ec2_group
+        name: "short-security-group"
+        description: "A generated security group"
+        region: "eu-west-1"
+        state: present
+
+
+- name: Deploy test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Pull the test image
+      raw: docker pull test
+    - name: Launch test
+      docker:
+        image: test
+        name: test
+        state: reloaded
+

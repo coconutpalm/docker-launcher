@@ -1,0 +1,11 @@
+---
+- name: Stop one
+  hosts: local
+  tags: one
+  tasks:
+    - name: Stop one
+      docker:
+        image: someone/something
+        name: one
+        state: stopped
+

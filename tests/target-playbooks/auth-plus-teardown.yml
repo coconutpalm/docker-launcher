@@ -1,0 +1,30 @@
+---
+- name: Stop cassandra
+  hosts: local
+  tags: cassandra
+  tasks:
+    - name: Stop cassandra
+      docker:
+        image: poklet/cassandra
+        name: cassandra
+        state: stopped
+
+- name: Stop redis
+  hosts: local
+  tags: redis
+  tasks:
+    - name: Stop redis
+      docker:
+        image: redis
+        name: redis
+        state: stopped
+
+- name: Stop auth-plus
+  hosts: local
+  tags: auth-plus
+  tasks:
+    - name: Stop auth-plus
+      docker:
+        image: advancedtelematic/auth-plus
+        name: auth-plus
+        state: stopped

@@ -1,0 +1,26 @@
+---
+version: 0.1
+services:
+  - name: cassandra
+    repo: cassandra
+    wait:
+      port: 9042
+      delay: 30
+    advertised_port: 9042
+    ports:
+      - 9042:9042
+      - 9160:9160
+      - 7000:7000
+    volumes:
+      - /var/lib/cassandra
+
+  - name: auth-plus
+    repo: advancedtelematic/auth-plus
+    env:
+      ENV_VAR_THAT: should_still_be_here
+    command: /bin/bash -c "redis -pass $PASS"
+    links:
+      - cassandra[direct]
+    advertised_port: 9001
+    ports:
+      - 9001:9001

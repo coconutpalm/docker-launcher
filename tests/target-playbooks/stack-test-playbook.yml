@@ -1,0 +1,133 @@
+---
+- name: Deploy redis
+  hosts: local
+  tags: redis
+  tasks:
+    - name: Pull the redis image
+      raw: docker pull redis
+    - name: Launch redis
+      docker:
+        image: redis
+        name: redis
+        state: reloaded
+
+- name: Run load test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start load-test
+      docker:
+        image: some/load-test
+        name: load-test
+        state: restarted
+
+    - name: Wait for load-test
+      shell: docker wait load-test
+      register: docker_return
+
+    - name: Get output of load-test
+      shell: docker logs load-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test load failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"
+
+- name: Run integration test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Run integration shell script
+      shell: ./test.sh 
+      register: shell_return
+
+    - debug: var=shell_return
+
+- name: Run both test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start load-test
+      docker:
+        image: some/load-test
+        name: load-test
+        state: restarted
+
+    - name: Wait for load-test
+      shell: docker wait load-test
+      register: docker_return
+
+    - name: Get output of load-test
+      shell: docker logs load-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test both failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"
+
+    - name: Run both shell script
+      shell: ./test.sh 
+      register: shell_return
+
+    - debug: var=shell_return
+
+- name: Run targeted test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start load-test
+      docker:
+        image: some/load-test
+        name: load-test
+        state: restarted
+        command: "/load-test --target localhost"
+
+    - name: Wait for load-test
+      shell: docker wait load-test
+      register: docker_return
+
+    - name: Get output of load-test
+      shell: docker logs load-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test targeted failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"
+
+    - name: Run targeted shell script
+      shell: ./test.sh --target localhost
+      register: shell_return
+
+    - debug: var=shell_return
+
+- name: Run env test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start load-test
+      docker:
+        image: some/load-test
+        name: load-test
+        state: restarted
+        env:
+          TARGET: "localhost"
+
+    - name: Wait for load-test
+      shell: docker wait load-test
+      register: docker_return
+
+    - name: Get output of load-test
+      shell: docker logs load-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test env failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"

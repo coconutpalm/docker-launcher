@@ -1,0 +1,5 @@
+    - name: Wait for instances to be available
+      {{'local_action: wait_for host={{ item }} port=22 delay=5 timeout=320 state=started'}}
+      with_items: groups.coreos
+
+

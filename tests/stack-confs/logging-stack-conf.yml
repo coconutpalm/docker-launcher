@@ -1,0 +1,6 @@
+---
+logging: true
+
+services:
+  - name: someservice
+    repo: someone/something

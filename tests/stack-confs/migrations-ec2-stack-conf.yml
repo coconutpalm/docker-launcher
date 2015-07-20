@@ -1,0 +1,39 @@
+---
+nodes:
+  - name: db-server
+    group: ats-demo
+    services:
+      - cassandra
+      - device_info
+    size: t2.medium
+    count: 1
+    volumes:
+      - dev: /dev/xvdf
+        size: 30
+        fs: btrfs
+        mountpoint: /mnt
+services:
+  - name: cassandra
+    version: latest
+    repo: cassandra
+    ports:
+      - 9042
+      - 9160
+      - 7000
+    wait:
+      port: 9042
+      delay: 30
+
+  - name: device_info
+    repo: advancedtelematic/deviceinfo-scala
+    links:
+      - cassandra[direct]
+    advertised_port: 9002
+    ports:
+      - 9002:9002
+    migrations:
+      cql:
+        - authplus.cql
+        - default.cql
+        - device-info.cql
+        - auth-plus-auth-example-data.cql

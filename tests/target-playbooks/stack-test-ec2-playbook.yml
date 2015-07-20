@@ -1,0 +1,175 @@
+---
+- name: "Create security group: redis-smoke-test"
+  hosts: local
+  tasks:
+    - name: "Create redis-smoke-test"
+      local_action:
+        module: ec2_group
+        name: "redis-smoke-test"
+        description: "A random redis security group"
+        region: "eu-west-1"
+        state: present
+        rules:
+          - to_port: 22
+            from_port: 22
+            cidr_ip: 0.0.0.0/0
+            proto: tcp
+          - to_port: 6379
+            from_port: 6379
+            cidr_ip: 0.0.0.0/0
+            proto: tcp
+        rules_egress:
+          - cidr_ip: 0.0.0.0/0
+            proto: all
+        
+- name: Create EC2 instances
+  hosts: local
+  tags: always
+  tasks:
+    - name: Create db-server EC2 instances
+      register: ec2
+      local_action:
+        module: ec2
+        key_name: "integration_tests"
+        group: "redis-smoke-test"
+        instance_type: "t2.micro"
+        image: "ami-07fd8270"
+        region: "eu-west-1"
+        wait: yes
+        exact_count: 1
+        user_data: |
+          #cloud-config
+          ---
+          coreos:
+            etcd:
+              addr: $private_ipv4:4001
+              peer-addr: $private_ipv4:7001
+              discovery:
+            fleet:
+              public-ip: $private_ipv4
+            update:
+              reboot-strategy: off
+            units:
+              - name: etcd.service
+                command: start
+              - name: fleet.service
+                command: start
+        count_tag:
+          Name: "db-server"
+        instance_tags:
+          Name: "db-server"
+          type: coreos
+
+    - name: Add db-server to coreos group
+      local_action: add_host >
+        hostname={{ item.public_dns_name }}
+        groupname=coreos
+        id={{ item.id }}
+        test_ip={{ item.public_dns_name }}
+      with_items: ec2.tagged_instances
+
+    - name: Add db-server to host groups
+      local_action: add_host >
+        hostname={{ item[0].public_dns_name }}
+        groupname={{ item[1] }}
+        id={{ item[0].id }}
+        test_ip={{ item[0].public_dns_name }}
+      with_nested:
+        - ec2.tagged_instances
+        - ['redis']
+
+    - name: Wait for instances to be available
+      local_action: wait_for host={{ item }} port=22 delay=5 timeout=320 state=started
+      with_items: groups.coreos
+
+- name: bootstrap
+  hosts: coreos
+  tags: bootstrap
+  gather_facts: False
+  roles:
+    - defunctzombie.coreos-bootstrap
+  tasks:
+    - name: install docker-py
+      pip: name=docker-py version="0.6.0"
+    - name: install httplib2
+      pip: name=httplib2 version="0.9.1"
+
+- name: login to docker hub
+  hosts: coreos
+  tags: bootstrap
+  tasks:
+  - name: login into Docker Hub
+    raw: docker login -u "atsjenkins" -p "{{ lookup('env', 'DOCKER_PASSWORD') }}" -e "jenkins@advancedtelematic.com"
+
+- name: Deploy redis
+  hosts: redis
+  tags: redis
+  tasks:
+    - name: Pull the redis image
+      raw: docker pull redis
+
+    - name: Launch redis
+      docker:
+        image: redis
+        name: redis
+        state: reloaded
+        ports: ['6379:6379']
+        expose: ['6379']
+        
+- name: Run targeted test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start redis-smoke-test
+      docker:
+        image: redis
+        name: redis-smoke-test
+        state: restarted
+        command: "redis-cli -h {{ groups.redis[0] }} -p 6379 PING"
+
+    - name: Wait for redis-smoke-test
+      shell: docker wait redis-smoke-test
+      register: docker_return
+
+    - name: Get output of redis-smoke-test
+      shell: docker logs redis-smoke-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test targeted failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"
+    
+    - name: Run targeted shell script
+      shell: redis-cli -h {{ groups.redis[0] }} -p 6379 PING
+      register: shell_return
+
+    - debug: var=shell_return
+
+- name: Run env test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Start redis-env-test
+      docker:
+        image: redis
+        name: redis-env-test
+        state: restarted
+        command: "bash -c 'redis-cli -h $HOST -p 6379 PING'"
+        env:
+          HOST: "{{ groups.redis[0] }}"
+
+    - name: Wait for redis-env-test
+      shell: docker wait redis-env-test
+      register: docker_return
+
+    - name: Get output of redis-env-test
+      shell: docker logs redis-env-test
+      register: docker_output
+
+    - debug: var=docker_output.stdout
+
+    - name: Check return value
+      fail: msg="Test env failed with {{ docker_return.stdout }}"
+      when: docker_return.stdout != "0"

@@ -1,0 +1,104 @@
+- name: Deploy {{ service.get('name') }}
+  hosts: {{ service.get('host') }}
+  tags: {{ service.get('name') }}
+  tasks:
+    - name: Pull the {{ service.get('name') }} image
+      raw: docker pull {{ service.get('repo') }}
+
+    {% if service.get('files') != None -%}
+    {%- for file in service.get('files') -%}
+    - name: Upload {{ file['src'] }}
+      sudo: True
+      template:
+        src: {{ file['src'] }}
+        dest: {{ file['dest'] }}
+    {% endfor %}
+    {%- endif %}
+
+    {% if service.get('schedule') == None -%}
+    - name: Launch {{ service.get('name') }}
+      docker:
+        image: {{ service.get('repo') }}
+        name: {{ service.get('name') }}
+        state: reloaded
+        {% if service.get('command') != None -%}
+        command: "{{ service.get('command') }}"
+        {% endif -%}
+        {% if service.get('ports') != None -%}
+        ports: {{ service.get('ports') }}
+        expose: {{ service.get('expose') }}
+        {% endif -%}
+
+        {% if service.get('volumes') != None -%}
+        volumes: {{ service.get('volumes') }}
+        {% endif -%}
+        {% if service.get('env') != None -%}
+        env: {{ service.get('env') }}
+        {% endif -%}
+
+        {% if service.get('links') != None -%}
+        links:
+          {% for link in service.get('links') -%}
+          - {{ link }}:{{ link }}
+          {% endfor -%}
+        {% endif -%}
+    {% else %}
+    {% for schedule in service.get('schedule') %}
+    - name: Create {{ service.get('name') }} service
+      sudo: yes
+      copy:
+        dest: /etc/systemd/system/{{ service.get('name') }}.service
+        content: |
+          [Unit]
+          Description={{ schedule['description'] }}
+          After=docker.service
+
+          [Service]
+          User={{ '{{ ansible_ssh_user }}' }}
+          TimeoutStartSec=0
+          KillMode=none
+          Type=oneshot
+          EnvironmentFile=/etc/environment
+          ExecStartPre=-/usr/bin/docker login \
+            -u {{ conf.get('registry')['user'] }} \
+            -e {{ conf.get('registry')['email'] }}
+          ExecStartPre=-/usr/bin/docker pull {{ service.get('repo') }}
+          ExecStartPre=-/usr/bin/docker rm {{ service.get('name') }}
+          ExecStart=/usr/bin/docker run --rm --name {{ service.get('name') }} \
+            {% if service.has('env') %}{% for env in service.get('env') -%}
+            -e {{env}}={{service.get('env')[env]}} \
+            {% endfor %}{% endif -%}
+            {{ service.get('repo') }}
+            {%- if service.has('command') %} \
+            {{ service.get('command') }}{% endif %}
+
+    - name: Create {{ service.get('name') }} timer
+      sudo: yes
+      copy:
+        dest: /etc/systemd/system/{{ service.get('name') }}.timer
+        content: |
+          [Unit]
+          Description=Periodically run {{ service.get('name') }}
+
+          [Timer]
+          OnBootSec={{ schedule['onboot'] }}
+          OnUnitActiveSec={{ schedule['schedule'] }}
+          Unit={{ service.get('name') }}.service
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable the timer
+      sudo: yes
+      service:
+        name: {{ service.get('name') }}.timer
+        enabled: yes
+        state: started
+    {% endfor %}
+    {% endif %}
+
+    {% if service.get('wait') != None %}
+    - name: Wait for {{ service.get('name') }}
+      wait_for: host=localhost port={{ service.get('wait')['port'] }} delay={{ service.get('wait')['delay'] }} timeout=60 state=started
+    {% endif %}
+

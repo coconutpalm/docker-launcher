@@ -1,0 +1,13 @@
+- name: bootstrap
+  hosts: coreos
+  tags: bootstrap
+  gather_facts: False
+  roles:
+    - defunctzombie.coreos-bootstrap
+  tasks:
+    - name: install docker-py
+      pip: name=docker-py version="0.6.0"
+    - name: install httplib2
+      pip: name=httplib2 version="0.9.1"
+
+

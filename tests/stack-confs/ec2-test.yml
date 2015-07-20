@@ -1,0 +1,49 @@
+---
+version: 0.1
+
+nodes:
+  - name: db-server
+    group: default
+    services:
+      - haproxy
+      - redis
+      - cassandra
+    size: t2.medium
+    count: 3
+    volumes:
+      - dev: /dev/xvdf
+        size: 30
+        fs: btrfs
+        mountpoint: /var/lib/cassandra
+
+  - name: app-server
+    group: default
+    services:
+      - auth-plus
+      - auth-plus-auth
+      - device-info
+    size: t2.medium
+    count: 3
+
+services:
+  - name: cassandra
+    version: latest
+    repo: cassandra
+    ports:
+      - 9042:9042
+      - 9160:9160
+      - 7000:7000
+    wait:
+      port: 9042
+      delay: 30
+
+  - name: haproxy
+    version: latest
+    repo: haproxy
+    ports:
+      - 80:80
+    files:
+      - src: haproxy.cfg
+        dest: /etc/haproxy.cfg
+    volumes:
+      - /etc/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro

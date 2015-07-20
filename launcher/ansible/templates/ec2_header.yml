@@ -1,0 +1,5 @@
+- name: Create EC2 instances
+  hosts: local
+  tags: always
+  tasks:
+

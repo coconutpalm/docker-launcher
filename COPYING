@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Docker Launcher
+Source: git@gitlab.advancedtelematic.com:ats_dev/docker-launcher.git
+
+Files: *
+Copyright: Copyright 2015, ATS Advanced Telematic Systems GmbH
+License: GPL-3+

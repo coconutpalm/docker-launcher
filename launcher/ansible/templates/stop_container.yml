@@ -1,0 +1,10 @@
+- name: Stop {{ service.get('name') }}
+  hosts: {{ service.get('host') }}
+  tags: {{ service.get('name') }}
+  tasks:
+    - name: Stop {{ service.get('name') }}
+      docker:
+        image: {{ service.get('repo') }}
+        name: {{ service.get('name') }}
+        state: stopped
+

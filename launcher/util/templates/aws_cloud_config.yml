@@ -1,0 +1,44 @@
+#cloud-config
+---
+coreos:
+  etcd:
+    addr: $private_ipv4:4001
+    peer-addr: $private_ipv4:7001
+    discovery:
+  fleet:
+    public-ip: $private_ipv4
+  update:
+    reboot-strategy: {{ conf.get('reboot_strategy') }}
+  units:
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+    {%- if node.get('volumes') != None %}
+    - name: format-ebs.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the ebs drives
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        {% for volume in node.get('volumes') -%}
+        ExecStart=/usr/sbin/wipefs -f {{ volume['dev'] }}
+        ExecStart=/usr/sbin/mkfs.{{ volume['fs'] }} -f {{ volume['dev'] }}
+        {%- endfor %}
+    {% for volume in node.get('volumes') -%}
+    - name: {{ volume['mountpoint'] | replace('/', "", 1) | replace("/", "-") }}.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount drive to {{ volume['mountpoint'] }}
+        Requires=format-ebs.service
+        After=format-ebs.service
+        Before=docker.service
+        [Mount]
+        What={{ volume['dev'] }}
+        Where={{ volume['mountpoint'] }}
+        Type={{ volume['fs'] }}
+    {%- endfor -%}
+    {%- endif -%}

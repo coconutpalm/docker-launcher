@@ -1,0 +1,22 @@
+---
+type: //rec
+required:
+  reboot_strategy: //str
+  registry:
+    type: //rec
+    required:
+      user: //str
+      email: //str
+  ec2:
+    type: //rec
+    required:
+      key: //str
+      image: //str
+      region: //str
+optional:
+  version: //any
+  python: //str
+  verbosity: //int
+  vars:
+    type: //map
+    values: //str
