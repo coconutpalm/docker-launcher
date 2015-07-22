@@ -178,6 +178,7 @@ services:                         # definition of services
       cql:                        # Requires a cassandra container to be linked
         - schema.cql              # Array of cql files that will be executed
         - default-data.cql        # against the linked cassandra
+    attach: True                  # Run container with an open tty, you can jump into it by running `docker attach`
   - name: cronjob
     repo: some-repo/cronjob
     schedule:                     # you can run containers periodically with schedule

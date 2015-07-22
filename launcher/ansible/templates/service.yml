@@ -42,6 +42,11 @@
           - {{ link }}:{{ link }}
           {% endfor -%}
         {% endif -%}
+
+        {% if service.get('attach') %}
+        detach: False
+        stdin_open: True
+        {% endif -%}
     {% else %}
     {% for schedule in service.get('schedule') %}
     - name: Create {{ service.get('name') }} service

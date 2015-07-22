@@ -58,6 +58,8 @@ required:
               onboot: //str
               schedule: //str
               description: //str
+        attach:
+          type: //bool
 optional:
   version: //num
   logging: //bool

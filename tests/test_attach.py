@@ -19,9 +19,22 @@
 # Docker Launcher. If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Module for transforming and launching stack configs"""
-import os
 
-VERSION = "0.1.2"
-CONFIGURATION = os.getenv('XDG_CONFIG_HOME',
-                          os.environ['HOME'] + '/.config') + '/docker-launcher'
+from launcher.util.stack_config import StackConf
+import pytest
+
+
+@pytest.fixture(scope="function")
+def valid_service():
+    return {
+        'services': [{
+            'name': 'test_service',
+            'repo': 'test/repo',
+            'attach': True
+        }]
+    }
+
+
+def test_attach_is_valid(valid_service):
+    StackConf(valid_service)
+
