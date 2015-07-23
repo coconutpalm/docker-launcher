@@ -1,0 +1,10 @@
+---
+- name: Deploy test_service
+  hosts: local
+  tags: test_service
+  tasks:
+    - name: Launch test_service
+      docker:
+        image: test/repo
+        name: test_service
+        state: reloaded

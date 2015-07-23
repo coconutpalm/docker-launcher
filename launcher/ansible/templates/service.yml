@@ -2,8 +2,10 @@
   hosts: {{ service.get('host') }}
   tags: {{ service.get('name') }}
   tasks:
+    {% if service.get('pull') != false %}
     - name: Pull the {{ service.get('name') }} image
       raw: docker pull {{ service.get('repo') }}
+    {% endif %}
 
     {% if service.get('files') != None -%}
     {%- for file in service.get('files') -%}

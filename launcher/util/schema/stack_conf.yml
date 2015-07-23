@@ -60,6 +60,8 @@ required:
               description: //str
         attach:
           type: //bool
+        pull:
+          type: //bool
 optional:
   version: //num
   logging: //bool

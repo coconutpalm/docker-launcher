@@ -1,0 +1,5 @@
+---
+services:
+  - name: test_service
+    repo: test/repo
+    pull: false

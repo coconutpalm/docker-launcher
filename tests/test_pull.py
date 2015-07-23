@@ -19,9 +19,26 @@
 # Docker Launcher. If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Module for transforming and launching stack configs"""
-import os
 
-VERSION = "0.1.3"
-CONFIGURATION = os.getenv('XDG_CONFIG_HOME',
-                          os.environ['HOME'] + '/.config') + '/docker-launcher'
+from launcher.util.stack_config import StackConf
+from test_library import run_playbook_test
+import pytest
+
+
+@pytest.fixture(scope="function")
+def valid_service():
+    return {
+        'services': [{
+            'name': 'test_service',
+            'repo': 'test/repo',
+            'pull': False
+        }]
+    }
+
+
+def test_pull_is_valid(valid_service):
+    StackConf(valid_service)
+
+
+def test_pull_playbook():
+    run_playbook_test("tests/stack-confs/pull.yml", "tests/target-playbooks/pull.yml")
