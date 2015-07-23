@@ -179,6 +179,7 @@ services:                         # definition of services
         - schema.cql              # Array of cql files that will be executed
         - default-data.cql        # against the linked cassandra
     attach: True                  # Run container with an open tty, you can jump into it by running `docker attach`
+    pull: False                   # Disables unconditional pull, useful if your images are not on DockerHub, or you want to bypass those
   - name: cronjob
     repo: some-repo/cronjob
     schedule:                     # you can run containers periodically with schedule
