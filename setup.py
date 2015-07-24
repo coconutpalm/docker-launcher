@@ -16,7 +16,7 @@ setup(name='docker-launcher',
       packages=find_packages(),
       include_package_data=True,
 
-      install_requires=['pyyaml', 'jinja2', 'boto', 'pyrx-ats', 'ansible', 'docker-py'],
+      install_requires=['pyyaml', 'jinja2', 'boto', 'pyrx-ats', 'ansible', 'docker-py==1.2.3'],
       extras_require={'dev': ['pytest', 'pytest-cov', 'pylint']},
 
       scripts=['bin/docker-launcher'])
