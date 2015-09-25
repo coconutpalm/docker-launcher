@@ -22,6 +22,6 @@
 """Module for transforming and launching stack configs"""
 import os
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 CONFIGURATION = os.getenv('XDG_CONFIG_HOME',
                           os.environ['HOME'] + '/.config') + '/docker-launcher'

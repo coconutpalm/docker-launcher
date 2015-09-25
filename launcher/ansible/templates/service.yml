@@ -100,7 +100,7 @@
       service:
         name: {{ service.get('name') }}.timer
         enabled: yes
-        state: started
+        state: restarted
     {% endfor %}
     {% endif %}
 
