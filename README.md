@@ -312,6 +312,10 @@ For code coverage run:
 py.test --cov launcher tests/
 ```
 
+## Examples of docker-launcher in production
+
+To get a picture of how docker-launcher is used in the real world, you can take a look at the ATS-developed [GENIVI SOTA project](http://advancedtelematic.github.io/rvi_sota_server/). It uses docker-launcher to deploy both the server and client, as well as the RVI communication nodes.
+
 ## Copyright
 
 Copyright © 2015 ATS Advanced Telematic Systems GmbH
