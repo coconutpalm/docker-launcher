@@ -1,0 +1,38 @@
+- name: Deploy one
+  hosts: local
+  tags: one
+  tasks:
+    - name: Pull the one image
+      raw: docker pull someone/one
+    - name: Launch one
+      docker:
+        image: someone/one
+        name: one
+        state: reloaded
+        restart_policy: no
+
+- name: Deploy two
+  hosts: local
+  tags: two
+  tasks:
+    - name: Pull the two image
+      raw: docker pull someone/two
+    - name: Launch two
+      docker:
+        image: someone/two
+        name: two
+        state: reloaded
+        restart_policy: always
+
+- name: Deploy three
+  hosts: local
+  tags: three
+  tasks:
+    - name: Pull the three image
+      raw: docker pull someone/three
+    - name: Launch three
+      docker:
+        image: someone/three
+        name: three
+        state: reloaded
+        restart_policy: on-failure

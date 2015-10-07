@@ -23,6 +23,11 @@
         image: {{ service.get('repo') }}
         name: {{ service.get('name') }}
         state: reloaded
+        {% if service.get('restart_policy') != None -%}
+        restart_policy: {{service.get('restart_policy')}}
+        {% else %}
+        restart_policy: always
+        {% endif -%}
         {% if service.get('command') != None -%}
         command: "{{ service.get('command') }}"
         {% endif -%}

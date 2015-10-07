@@ -178,6 +178,8 @@ services:                         # definition of services
       cql:                        # Requires a cassandra container to be linked
         - schema.cql              # Array of cql files that will be executed
         - default-data.cql        # against the linked cassandra
+    restart_policy: always        # Container restart policy, defaults to 'always'
+                                  # Available options are 'no', 'on-failure', 'always'
     attach: True                  # Run container with an open tty, you can jump into it by running `docker attach`
     pull: False                   # Disables unconditional pull, useful if your images are not on DockerHub, or you want to bypass those
   - name: cronjob

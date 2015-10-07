@@ -21,7 +21,7 @@
         rules_egress:
           - cidr_ip: 0.0.0.0/0
             proto: all
-        
+
 - name: Create EC2 instances
   hosts: local
   tags: always
@@ -115,7 +115,8 @@
         state: reloaded
         ports: ['6379:6379']
         expose: ['6379']
-        
+        restart_policy: always
+
 - name: Run targeted test
   hosts: local
   tags: test
@@ -140,7 +141,7 @@
     - name: Check return value
       fail: msg="Test targeted failed with {{ docker_return.stdout }}"
       when: docker_return.stdout != "0"
-    
+
     - name: Run targeted shell script
       shell: redis-cli -h {{ groups.redis[0] }} -p 6379 PING
       register: shell_return

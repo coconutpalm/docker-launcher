@@ -9,3 +9,4 @@
         image: someone/something
         name: one
         state: reloaded
+        restart_policy: always

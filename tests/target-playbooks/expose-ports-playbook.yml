@@ -13,6 +13,7 @@
         image: someone/something
         name: one
         state: reloaded
+        restart_policy: always
         ports: ['6000:6000']
         expose: ['6000', '5000/udp']
 

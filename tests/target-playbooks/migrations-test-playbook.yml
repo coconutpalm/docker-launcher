@@ -10,6 +10,7 @@
         image: poklet/cassandra
         name: cassandra
         state: reloaded
+        restart_policy: always
         ports: ['9042:9042', '9160:9160' ,'7000:7000']
         expose: ['9042', '9160' ,'7000']
         volumes:
@@ -61,6 +62,7 @@
         image: advancedtelematic/auth-plus
         name: auth-plus
         state: reloaded
+        restart_policy: always
         ports: ['9001:9001']
         expose: ['9001']
         links: ['cassandra:cassandra']
