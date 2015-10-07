@@ -120,6 +120,7 @@
         image: cassandra
         name: cassandra
         state: reloaded
+        restart_policy: always
         ports: ['9042:9042', '9160:9160', '7000:7000']
         expose: ['9042', '9160', '7000']
 
@@ -189,6 +190,7 @@
         image: advancedtelematic/deviceinfo-scala
         name: device_info
         state: reloaded
+        restart_policy: always
         ports: ['9002:9002']
         expose: ['9002']
         env: {'CASSANDRA_PORT_9042_TCP_ADDR': '{{ groups.cassandra[0] }}', 'CASSANDRA_HOST': '{{ groups.cassandra[0] }}', 'CASSANDRA_PORT': 9042}

@@ -10,6 +10,7 @@
         image: redis
         name: redis
         state: reloaded
+        restart_policy: always
 
 - name: Run load test
   hosts: local
@@ -40,7 +41,7 @@
   tags: test
   tasks:
     - name: Run integration shell script
-      shell: ./test.sh 
+      shell: ./test.sh
       register: shell_return
 
     - debug: var=shell_return
@@ -70,7 +71,7 @@
       when: docker_return.stdout != "0"
 
     - name: Run both shell script
-      shell: ./test.sh 
+      shell: ./test.sh
       register: shell_return
 
     - debug: var=shell_return

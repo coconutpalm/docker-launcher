@@ -170,6 +170,7 @@
         state: reloaded
         ports: ['9042:9042', '9160:9160', '7000:7000']
         expose: ['9042', '9160', '7000']
+        restart_policy: always
 
     - name: Wait for cassandra
       wait_for: host=localhost port=9042 delay=30 timeout=60 state=started
@@ -195,4 +196,5 @@
         ports: ['80:80']
         expose: ['80']
         volumes: ['/etc/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro']
- 
+        restart_policy: always
+

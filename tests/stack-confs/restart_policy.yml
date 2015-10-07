@@ -1,0 +1,13 @@
+---
+services:
+  - name: one
+    repo: someone/one
+    restart_policy: "no"
+
+  - name: two
+    repo: someone/two
+    restart_policy: "always"
+
+  - name: three
+    repo: someone/three
+    restart_policy: 'on-failure'

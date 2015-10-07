@@ -14,6 +14,7 @@
         image: nathanleclaire/elasticsearch:43d2b4f914a192d0de221cb744dab665b07f1268
         name: elasticsearch
         state: reloaded
+        restart_policy: always
         ports: ['9200:9200', '9300:9300']
         expose: ['9200', '9300']
 
@@ -31,6 +32,7 @@
         image: advancedtelematic/logstash
         name: logstash
         state: reloaded
+        restart_policy: always
         command: "-f /etc/logstash.sample.conf"
         ports: ['5000:5000', '5000:5000/udp']
         expose: ['5000', '5000', '5000/udp']
@@ -52,6 +54,7 @@
         image: advancedtelematic/logspout
         name: logspout
         state: reloaded
+        restart_policy: always
         command: "/bin/sh -c '/bin/logspout syslog://$LOGSTASH_PORT_5000_TCP_ADDR:5000'"
         volumes: ['/var/run/docker.sock:/var/run/docker.sock']
         env: {'DEBUG': 'true'}
@@ -72,6 +75,7 @@
         image: nathanleclaire/kibana:43d2b4f914a192d0de221cb744dab665b07f1268
         name: kibana
         state: reloaded
+        restart_policy: always
         ports: ['5454:80']
         expose: ['80']
 
@@ -89,5 +93,6 @@
         image: someone/something
         name: someservice
         state: reloaded
+        restart_policy: always
 
 

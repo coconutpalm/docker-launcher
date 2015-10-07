@@ -28,11 +28,12 @@ services:
     repo: redis
     ports:
       - 6379
+    restart_policy: 'always'
 
 tests:
   - name: targeted
     target: redis
-    shell: 
+    shell:
       name: redis-cli
       args: "-h %TARGET -p 6379 PING"
     docker:

@@ -8,3 +8,4 @@
         image: test/repo
         name: test_service
         state: reloaded
+        restart_policy: always
