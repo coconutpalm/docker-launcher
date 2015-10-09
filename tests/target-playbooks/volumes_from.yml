@@ -1,0 +1,50 @@
+
+
+- name: Deploy mysql-data
+  hosts: local
+  tags: mysql-data
+  tasks:
+    
+    - name: Pull the mysql-data image
+      raw: docker pull busybox
+    
+
+    
+
+    - name: Launch mysql-data
+      docker:
+        image: busybox
+        name: mysql-data
+        state: reloaded
+        restart_policy: on-failure
+        command: "true"
+        volumes: ['/var/lib/mysql']
+        
+
+    
+- name: Deploy mysql
+  hosts: local
+  tags: mysql
+  tasks:
+    
+    - name: Pull the mysql image
+      raw: docker pull mysql
+    
+
+    
+
+    - name: Launch mysql
+      docker:
+        image: mysql
+        name: mysql
+        state: reloaded
+        
+        restart_policy: always
+        ports: ['3306:3306']
+        expose: ['3306']
+        volumes_from: ['mysql-data']
+        env: {'MYSQL_ROOT_PASSWORD': 'super-secret', 'MYSQL_PASSWORD': 'super-secret', 'MYSQL_USER': 'test'}
+        
+
+    
+

@@ -44,6 +44,9 @@ required:
         volumes:
           type: //arr
           contents: { type: //str }
+        volumes_from:
+          type: //arr
+          contents: { type: //str }
         files:
           type: //arr
           contents:

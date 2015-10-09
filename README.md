@@ -170,8 +170,10 @@ services:                         # definition of services
       - three[direct]             # Adding [direct] links straight to host, not through proxy,
                                   # only use if you really need to.
     volumes:                      # volumes to be attached to the container
-      - /some/path                # same semantic as in docker --volume
-      - /some/path:/another/path
+      - /some/path                # same semantic as in docker --volume (this defines a volume)
+      - /some/path:/another/path  # same semantic as in docker --volume (this mounts a volume to the host at '/some/path')
+    volumes_from:                 # attach all defined volumes from container 'one'
+      - one
     files:                        # files that need to be uploaded to the node
       - some/local/file:/some/absolute/remote/path
     migrations:
@@ -251,6 +253,35 @@ See the example directory for more examples. You can also take a look at the Rx
 schema for stack config in `launcher/util/schema/stack_conf.yml`, have a look
 at [the Rx documentation](http://rx.codesimply.com/coretypes.html) to understand
 the syntax.
+
+### **Example**: data container
+
+This is example starts a database with its data being stored in another
+container (data-only container). We need to specify a restart policy, as restart
+is the default since version `0.1.5`, which would lead to the data container
+being restarted over and over again.
+
+```yaml
+---
+services:
+  - name: mysql-data
+    restart_policy: "on-failure"
+    repo: busybox
+    volumes:
+      - /var/lib/mysql
+    command: "true"
+
+  - name: mysql
+    repo: mysql
+    ports:
+      - 3306
+    env:
+      MYSQL_ROOT_PASSWORD: "super-secret"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "super-secret"
+    volumes_from:
+      - mysql-data
+```
 
 ## Problems/Known Bugs
 
