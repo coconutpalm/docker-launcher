@@ -19,9 +19,13 @@
 # Docker Launcher. If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Module for transforming and launching stack configs"""
-import os
 
-VERSION = "0.1.6"
-CONFIGURATION = os.getenv('XDG_CONFIG_HOME',
-                          os.environ['HOME'] + '/.config') + '/docker-launcher'
+from test_library import run_playbook_test, run_schema_error_test
+from launcher.util.stack_config import StackConf
+from launcher.util.dict_wrapper import SchemaError
+import pytest
+
+def test_minimal_stack_conf():
+    """Test that the minimal stack conf is valid"""
+    run_playbook_test("tests/stack-confs/volumes_from.yml",
+                      "tests/target-playbooks/volumes_from.yml")

@@ -39,6 +39,9 @@
         {% if service.get('volumes') != None -%}
         volumes: {{ service.get('volumes') }}
         {% endif -%}
+        {% if service.get('volumes_from') != None -%}
+        volumes_from: {{ service.get('volumes_from') }}
+        {% endif -%}
         {% if service.get('env') != None -%}
         env: {{ service.get('env') }}
         {% endif -%}
