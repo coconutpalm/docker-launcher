@@ -1,0 +1,20 @@
+---
+services:
+  - name: mysql-data
+    restart_policy: "on-failure"
+    state: present
+    repo: busybox
+    volumes:
+      - /var/lib/mysql
+    command: "true"
+
+  - name: mysql-test
+    repo: mysql
+    ports:
+      - 3306
+    env:
+      MYSQL_ROOT_PASSWORD: "super-secret"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "super-secret"
+    volumes_from:
+      - mysql-data
