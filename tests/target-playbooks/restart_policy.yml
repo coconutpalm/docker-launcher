@@ -9,7 +9,7 @@
         image: someone/one
         name: one
         state: reloaded
-        restart_policy: no
+        restart_policy: "no"
 
 - name: Deploy two
   hosts: local
