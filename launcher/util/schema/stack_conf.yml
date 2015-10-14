@@ -27,6 +27,7 @@ required:
           values: //str
         advertised_port: //int
         restart_policy: //str
+        state: //str
         ports:
           type: //arr
           contents:

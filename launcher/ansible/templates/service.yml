@@ -22,7 +22,11 @@
       docker:
         image: {{ service.get('repo') }}
         name: {{ service.get('name') }}
+        {% if service.get('state') != None -%}
+        state: {{service.get('state')}}
+        {% else %}
         state: reloaded
+        {% endif -%}
         {% if service.get('restart_policy') != None -%}
         restart_policy: {{service.get('restart_policy')}}
         {% else %}
