@@ -28,7 +28,7 @@
         state: reloaded
         {% endif -%}
         {% if service.get('restart_policy') != None -%}
-        restart_policy: {{service.get('restart_policy')}}
+        restart_policy: "{{service.get('restart_policy')}}"
         {% else %}
         restart_policy: always
         {% endif -%}

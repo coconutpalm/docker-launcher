@@ -9,7 +9,7 @@
         image: busybox
         name: mysql-data
         state: present
-        restart_policy: on-failure
+        restart_policy: "no"
         command: "true"
         volumes: ['/var/lib/mysql']
     

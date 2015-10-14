@@ -1,7 +1,7 @@
 ---
 services:
   - name: mysql-data
-    restart_policy: "on-failure"
+    restart_policy: "no"
     state: present
     repo: busybox
     volumes:
