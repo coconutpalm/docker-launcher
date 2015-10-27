@@ -23,6 +23,7 @@
 from launcher.util.stack_config import StackConf
 from launcher.util.configuration import LauncherConf
 from launcher.ansible.executor import generate as playbook_generate
+from test_library import run_playbook_test
 import pytest
 import yaml
 CONFIG = "tests/test-config.yml"
@@ -50,3 +51,7 @@ def test_scheduler_schema():
     with open(CONFIG, 'r') as configuration:
         config = LauncherConf(configuration)
         yaml.load(playbook_generate(StackConf(stack), config))
+
+def test_scheduler_volumes():
+    run_playbook_test("tests/stack-confs/scheduler.yml",
+                      "tests/target-playbooks/scheduler.yml")
