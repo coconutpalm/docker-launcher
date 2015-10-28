@@ -84,6 +84,9 @@
           ExecStartPre=-/usr/bin/docker pull {{ service.get('repo') }}
           ExecStartPre=-/usr/bin/docker rm {{ service.get('name') }}
           ExecStart=/usr/bin/docker run --rm --name {{ service.get('name') }} \
+            {% if service.has('volumes') %}{% for vol in service.get('volumes') -%}
+            -v {{vol}} \
+            {% endfor %}{% endif -%}
             {% if service.has('env') %}{% for env in service.get('env') -%}
             -e {{env}}={{service.get('env')[env]}} \
             {% endfor %}{% endif -%}

@@ -1,0 +1,13 @@
+---
+services:
+  - name: test
+    repo: test
+    schedule:
+      - onboot: 2min
+        schedule: 1min
+        description: "test"
+    volumes:
+      - /test:/test
+    env:
+      TEST: test
+    command: "test"

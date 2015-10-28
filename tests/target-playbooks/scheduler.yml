@@ -1,0 +1,55 @@
+- name: Deploy test
+  hosts: local
+  tags: test
+  tasks:
+    - name: Pull the test image
+      raw: docker pull test
+
+    - name: Create test service
+      sudo: yes
+      copy:
+        dest: /etc/systemd/system/test.service
+        content: |
+          [Unit]
+          Description=test
+          After=docker.service
+
+          [Service]
+          User={{ ansible_ssh_user }}
+          TimeoutStartSec=0
+          KillMode=none
+          Type=oneshot
+          EnvironmentFile=/etc/environment
+          ExecStartPre=-/usr/bin/docker login \
+            -u atsjenkins \
+            -e jenkins@advancedtelematic.com
+          ExecStartPre=-/usr/bin/docker pull test
+          ExecStartPre=-/usr/bin/docker rm test
+          ExecStart=/usr/bin/docker run --rm --name test \
+            -v /test:/test \
+            -e TEST=test \
+            test \
+            test
+
+    - name: Create test timer
+      sudo: yes
+      copy:
+        dest: /etc/systemd/system/test.timer
+        content: |
+          [Unit]
+          Description=Periodically run test
+
+          [Timer]
+          OnBootSec=2min
+          OnUnitActiveSec=1min
+          Unit=test.service
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable the timer
+      sudo: yes
+      service:
+        name: test.timer
+        enabled: yes
+        state: restarted
