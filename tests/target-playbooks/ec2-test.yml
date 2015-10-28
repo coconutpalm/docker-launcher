@@ -145,7 +145,7 @@
     - defunctzombie.coreos-bootstrap
   tasks:
     - name: install docker-py
-      pip: name=docker-py version="0.6.0"
+      pip: name=docker-py version="1.2.3"
     - name: install httplib2
       pip: name=httplib2 version="0.9.1"
 
